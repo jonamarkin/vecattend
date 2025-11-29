@@ -124,7 +124,7 @@ export default function SpinTheWheelPage() {
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/20 rounded-full mb-4">
               <Sparkles className="w-4 h-4 text-amber-400" />
               <span className="text-amber-200 text-sm font-medium">
-                VEC Christmas Raffle
+                Christmas Raffle
               </span>
               <Sparkles className="w-4 h-4 text-amber-400" />
             </div>

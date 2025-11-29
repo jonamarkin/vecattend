@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef } from "react";
 
 interface SpinWheelProps {
-  numbers: number[]
-  isSpinning: boolean
-  onSpinComplete: (winner: number) => void
+  numbers: number[];
+  isSpinning: boolean;
+  onSpinComplete: (winner: number) => void;
 }
 
 const COLORS = [
@@ -17,61 +17,67 @@ const COLORS = [
   "#16a34a", // green
   "#dc2626", // red
   "#16a34a", // green
-]
+];
 
-export function SpinWheel({ numbers, isSpinning, onSpinComplete }: SpinWheelProps) {
-  const [rotation, setRotation] = useState(0)
-  const hasSpunRef = useRef(false)
-  const winnerRef = useRef<number | null>(null)
+export function SpinWheel({
+  numbers,
+  isSpinning,
+  onSpinComplete,
+}: SpinWheelProps) {
+  const [rotation, setRotation] = useState(0);
+  const hasSpunRef = useRef(false);
+  const winnerRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (isSpinning && numbers.length > 0 && !hasSpunRef.current) {
-      hasSpunRef.current = true
+      hasSpunRef.current = true;
 
-      const segmentAngle = 360 / numbers.length
+      const segmentAngle = 360 / numbers.length;
 
-      const winnerIndex = Math.floor(Math.random() * numbers.length)
-      const winner = numbers[winnerIndex]
-      winnerRef.current = winner
+      const winnerIndex = Math.floor(Math.random() * numbers.length);
+      const winner = numbers[winnerIndex];
+      winnerRef.current = winner;
 
       // Segment center angle (segments start at -90° which is top)
       // Segment i spans from (i * segmentAngle - 90) to ((i+1) * segmentAngle - 90)
       // Center is at: i * segmentAngle + segmentAngle/2 - 90
-      const segmentCenterAngle = winnerIndex * segmentAngle + segmentAngle / 2 - 90
+      const segmentCenterAngle =
+        winnerIndex * segmentAngle + segmentAngle / 2 - 90;
 
       // To bring segment to top (270° or -90°), calculate required rotation
       // After rotating R degrees clockwise, segment at angle A moves to (A + R)
       // We want: segmentCenterAngle + R ≡ 270 (mod 360)
       // So: R = 270 - segmentCenterAngle
-      const targetRotation = (270 - segmentCenterAngle + 360) % 360
+      const targetRotation = (270 - segmentCenterAngle + 360) % 360;
 
       // Add full spins for dramatic effect
-      const fullSpins = (5 + Math.floor(Math.random() * 3)) * 360
+      const fullSpins = (5 + Math.floor(Math.random() * 3)) * 360;
 
       // Small random offset within segment to feel natural (not always dead center)
-      const maxOffset = segmentAngle * 0.3
-      const randomOffset = (Math.random() - 0.5) * maxOffset
+      const maxOffset = segmentAngle * 0.3;
+      const randomOffset = (Math.random() - 0.5) * maxOffset;
 
-      const totalRotation = rotation + fullSpins + targetRotation + randomOffset
+      const totalRotation =
+        rotation + fullSpins + targetRotation + randomOffset;
 
-      setRotation(totalRotation)
+      setRotation(totalRotation);
 
       setTimeout(() => {
-        hasSpunRef.current = false
+        hasSpunRef.current = false;
         if (winnerRef.current !== null) {
-          onSpinComplete(winnerRef.current)
+          onSpinComplete(winnerRef.current);
         }
-      }, 5000)
+      }, 5000);
     }
-  }, [isSpinning, numbers, onSpinComplete, rotation])
+  }, [isSpinning, numbers, onSpinComplete, rotation]);
 
   useEffect(() => {
     if (!isSpinning) {
-      hasSpunRef.current = false
+      hasSpunRef.current = false;
     }
-  }, [isSpinning])
+  }, [isSpinning]);
 
-  const segmentAngle = numbers.length > 0 ? 360 / numbers.length : 45
+  const segmentAngle = numbers.length > 0 ? 360 / numbers.length : 45;
 
   return (
     <div className="relative">
@@ -94,7 +100,9 @@ export function SpinWheel({ numbers, isSpinning, onSpinComplete }: SpinWheelProp
               style={{
                 top: "50%",
                 left: "50%",
-                transform: `rotate(${i * 15}deg) translateY(-140px) translate(-50%, -50%)`,
+                transform: `rotate(${
+                  i * 15
+                }deg) translateY(-140px) translate(-50%, -50%)`,
               }}
             />
           ))}
@@ -104,28 +112,30 @@ export function SpinWheel({ numbers, isSpinning, onSpinComplete }: SpinWheelProp
             className="relative w-full h-full rounded-full overflow-hidden shadow-inner"
             style={{
               transform: `rotate(${rotation}deg)`,
-              transition: isSpinning ? "transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)" : "none",
+              transition: isSpinning
+                ? "transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)"
+                : "none",
             }}
           >
             {numbers.length > 0 ? (
               <svg viewBox="0 0 100 100" className="w-full h-full">
                 {numbers.map((num, i) => {
-                  const startAngle = i * segmentAngle - 90
-                  const endAngle = (i + 1) * segmentAngle - 90
-                  const largeArc = segmentAngle > 180 ? 1 : 0
+                  const startAngle = i * segmentAngle - 90;
+                  const endAngle = (i + 1) * segmentAngle - 90;
+                  const largeArc = segmentAngle > 180 ? 1 : 0;
 
-                  const startRad = (startAngle * Math.PI) / 180
-                  const endRad = (endAngle * Math.PI) / 180
+                  const startRad = (startAngle * Math.PI) / 180;
+                  const endRad = (endAngle * Math.PI) / 180;
 
-                  const x1 = 50 + 50 * Math.cos(startRad)
-                  const y1 = 50 + 50 * Math.sin(startRad)
-                  const x2 = 50 + 50 * Math.cos(endRad)
-                  const y2 = 50 + 50 * Math.sin(endRad)
+                  const x1 = 50 + 50 * Math.cos(startRad);
+                  const y1 = 50 + 50 * Math.sin(startRad);
+                  const x2 = 50 + 50 * Math.cos(endRad);
+                  const y2 = 50 + 50 * Math.sin(endRad);
 
-                  const midAngle = (startAngle + endAngle) / 2
-                  const midRad = (midAngle * Math.PI) / 180
-                  const textX = 50 + 32 * Math.cos(midRad)
-                  const textY = 50 + 32 * Math.sin(midRad)
+                  const midAngle = (startAngle + endAngle) / 2;
+                  const midRad = (midAngle * Math.PI) / 180;
+                  const textX = 50 + 32 * Math.cos(midRad);
+                  const textY = 50 + 32 * Math.sin(midRad);
 
                   return (
                     <g key={num}>
@@ -152,7 +162,7 @@ export function SpinWheel({ numbers, isSpinning, onSpinComplete }: SpinWheelProp
                         {num}
                       </text>
                     </g>
-                  )
+                  );
                 })}
               </svg>
             ) : (
@@ -171,5 +181,5 @@ export function SpinWheel({ numbers, isSpinning, onSpinComplete }: SpinWheelProp
         </div>
       </div>
     </div>
-  )
+  );
 }
