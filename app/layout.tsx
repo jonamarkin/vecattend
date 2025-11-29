@@ -8,7 +8,8 @@ const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
   title: "VECAttend - Audience Management",
-  description: "VECAttend is an audience management platform for choir events.",
+  description:
+    "VECAttend is an audience management platform for VocalEssence Chorale Ghana.",
   generator: "v0.app",
   icons: {
     icon: "/favicon.ico",
