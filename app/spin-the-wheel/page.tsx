@@ -1,79 +1,80 @@
-"use client"
+"use client";
 
-import { useState, useCallback, useRef, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Gift, RotateCcw, Sparkles, TreePine, Home } from "lucide-react"
-import Link from "next/link"
-import { SpinWheel } from "@/components/spin-wheel"
-import { Snowfall } from "@/components/snowfall"
-import { WinnerModal } from "@/components/winner-modal"
+import { useState, useCallback, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Gift, RotateCcw, Sparkles, TreePine, Home } from "lucide-react";
+import Link from "next/link";
+import { SpinWheel } from "@/components/spin-wheel";
+import { Snowfall } from "@/components/snowfall";
+import { WinnerModal } from "@/components/winner-modal";
 
-const ALL_NUMBERS = Array.from({ length: 20 }, (_, i) => i + 1)
-const WHEEL_SIZE = 8
+const ALL_NUMBERS = Array.from({ length: 20 }, (_, i) => i + 1);
+const WHEEL_SIZE = 8;
 
 export default function SpinTheWheelPage() {
-  const [remainingNumbers, setRemainingNumbers] = useState<number[]>(ALL_NUMBERS)
-  const [wheelNumbers, setWheelNumbers] = useState<number[]>([])
-  const [drawnNumbers, setDrawnNumbers] = useState<number[]>([])
-  const [isSpinning, setIsSpinning] = useState(false)
-  const [winner, setWinner] = useState<number | null>(null)
-  const [showWinnerModal, setShowWinnerModal] = useState(false)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [remainingNumbers, setRemainingNumbers] =
+    useState<number[]>(ALL_NUMBERS);
+  const [wheelNumbers, setWheelNumbers] = useState<number[]>([]);
+  const [drawnNumbers, setDrawnNumbers] = useState<number[]>([]);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [winner, setWinner] = useState<number | null>(null);
+  const [showWinnerModal, setShowWinnerModal] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Initialize wheel with first 8 numbers
   useEffect(() => {
-    populateWheel(ALL_NUMBERS)
-  }, [])
+    populateWheel(ALL_NUMBERS);
+  }, []);
 
   const populateWheel = (available: number[]) => {
-    const shuffled = [...available].sort(() => Math.random() - 0.5)
-    const forWheel = shuffled.slice(0, Math.min(WHEEL_SIZE, shuffled.length))
-    setWheelNumbers(forWheel)
-  }
+    const shuffled = [...available].sort(() => Math.random() - 0.5);
+    const forWheel = shuffled.slice(0, Math.min(WHEEL_SIZE, shuffled.length));
+    setWheelNumbers(forWheel);
+  };
 
   const handleSpin = useCallback(() => {
-    if (isSpinning || wheelNumbers.length === 0) return
-    setIsSpinning(true)
-    setWinner(null)
-  }, [isSpinning, wheelNumbers])
+    if (isSpinning || wheelNumbers.length === 0) return;
+    setIsSpinning(true);
+    setWinner(null);
+  }, [isSpinning, wheelNumbers]);
 
   const handleSpinComplete = useCallback(
     (winningNumber: number) => {
-      setIsSpinning(false)
-      setWinner(winningNumber)
-      setDrawnNumbers((prev) => [...prev, winningNumber])
+      setIsSpinning(false);
+      setWinner(winningNumber);
+      setDrawnNumbers((prev) => [...prev, winningNumber]);
 
       // Remove from remaining and repopulate wheel
-      const newRemaining = remainingNumbers.filter((n) => n !== winningNumber)
-      setRemainingNumbers(newRemaining)
+      const newRemaining = remainingNumbers.filter((n) => n !== winningNumber);
+      setRemainingNumbers(newRemaining);
 
       // Show winner modal
       setTimeout(() => {
-        setShowWinnerModal(true)
-      }, 500)
+        setShowWinnerModal(true);
+      }, 500);
 
       // Repopulate wheel after a delay
       setTimeout(() => {
         if (newRemaining.length > 0) {
-          populateWheel(newRemaining)
+          populateWheel(newRemaining);
         } else {
-          setWheelNumbers([])
+          setWheelNumbers([]);
         }
-      }, 2000)
+      }, 2000);
     },
-    [remainingNumbers],
-  )
+    [remainingNumbers]
+  );
 
   const handleReset = () => {
-    setRemainingNumbers(ALL_NUMBERS)
-    setDrawnNumbers([])
-    setWinner(null)
-    setShowWinnerModal(false)
-    populateWheel(ALL_NUMBERS)
-  }
+    setRemainingNumbers(ALL_NUMBERS);
+    setDrawnNumbers([]);
+    setWinner(null);
+    setShowWinnerModal(false);
+    populateWheel(ALL_NUMBERS);
+  };
 
-  const isComplete = remainingNumbers.length === 0
+  const isComplete = remainingNumbers.length === 0;
 
   return (
     <div className="min-h-screen bg-[#0c1a0c] relative overflow-hidden">
@@ -89,15 +90,20 @@ export default function SpinTheWheelPage() {
       {/* Header */}
       <header className="relative z-10 p-4 md:p-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
+          {/* <Link
+            href="/"
+            className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+          >
             <Home className="w-5 h-5" />
             <span className="hidden sm:inline">Back to Dashboard</span>
-          </Link>
-          <div className="flex items-center gap-2">
+          </Link> */}
+          {/* <div className="flex items-center gap-2">
             <TreePine className="w-6 h-6 text-green-400" />
-            <h1 className="text-xl md:text-2xl font-bold text-white">Santa&apos;s Spin</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-white">
+              Santa&apos;s Spin
+            </h1>
             <TreePine className="w-6 h-6 text-green-400" />
-          </div>
+          </div> */}
           <Button
             variant="outline"
             size="sm"
@@ -117,18 +123,26 @@ export default function SpinTheWheelPage() {
           <div className="text-center mb-6 md:mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/20 rounded-full mb-4">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              <span className="text-amber-200 text-sm font-medium">Christmas Raffle</span>
+              <span className="text-amber-200 text-sm font-medium">
+                VEC Christmas Raffle
+              </span>
               <Sparkles className="w-4 h-4 text-amber-400" />
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-2 text-balance">Spin & Win!</h2>
-            <p className="text-white/60 text-sm md:text-base">{remainingNumbers.length} numbers remaining</p>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-2 text-balance">
+              Spin & Win!
+            </h2>
+            {/* <p className="text-white/60 text-sm md:text-base">{remainingNumbers.length} numbers remaining</p> */}
           </div>
 
           {/* Wheel and controls */}
           <div className="flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12">
             {/* Wheel */}
             <div className="relative">
-              <SpinWheel numbers={wheelNumbers} isSpinning={isSpinning} onSpinComplete={handleSpinComplete} />
+              <SpinWheel
+                numbers={wheelNumbers}
+                isSpinning={isSpinning}
+                onSpinComplete={handleSpinComplete}
+              />
 
               {/* Spin button */}
               <div className="mt-6 flex justify-center">
@@ -139,7 +153,11 @@ export default function SpinTheWheelPage() {
                   className="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-bold text-lg px-8 py-6 rounded-full shadow-lg shadow-red-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105"
                 >
                   <Gift className="w-5 h-5 mr-2" />
-                  {isSpinning ? "Spinning..." : isComplete ? "All Done!" : "SPIN!"}
+                  {isSpinning
+                    ? "Spinning..."
+                    : isComplete
+                    ? "All Done!"
+                    : "SPIN!"}
                 </Button>
               </div>
             </div>
@@ -163,26 +181,36 @@ export default function SpinTheWheelPage() {
                       </span>
                     ))
                   ) : (
-                    <span className="text-white/40 text-sm">Wheel is empty</span>
+                    <span className="text-white/40 text-sm">
+                      Wheel is empty
+                    </span>
                   )}
                 </div>
               </Card>
 
               {/* Remaining numbers */}
               <Card className="bg-white/5 border-white/10 p-4">
-                <h3 className="text-white/80 text-sm font-medium mb-3">Remaining ({remainingNumbers.length})</h3>
+                <h3 className="text-white/80 text-sm font-medium mb-3">
+                  Remaining ({remainingNumbers.length})
+                </h3>
                 <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
                   {remainingNumbers.map((num) => (
                     <span
                       key={num}
                       className={`w-7 h-7 flex items-center justify-center rounded text-xs font-medium transition-all ${
-                        wheelNumbers.includes(num) ? "bg-green-500/30 text-green-300" : "bg-white/10 text-white/60"
+                        wheelNumbers.includes(num)
+                          ? "bg-green-500/30 text-green-300"
+                          : "bg-white/10 text-white/60"
                       }`}
                     >
                       {num}
                     </span>
                   ))}
-                  {remainingNumbers.length === 0 && <span className="text-white/40 text-sm">All numbers drawn!</span>}
+                  {remainingNumbers.length === 0 && (
+                    <span className="text-white/40 text-sm">
+                      All numbers drawn!
+                    </span>
+                  )}
                 </div>
               </Card>
 
@@ -203,7 +231,9 @@ export default function SpinTheWheelPage() {
                       </span>
                     ))
                   ) : (
-                    <span className="text-white/40 text-sm">No winners yet</span>
+                    <span className="text-white/40 text-sm">
+                      No winners yet
+                    </span>
                   )}
                 </div>
               </Card>
@@ -213,7 +243,11 @@ export default function SpinTheWheelPage() {
       </main>
 
       {/* Winner Modal */}
-      <WinnerModal isOpen={showWinnerModal} onClose={() => setShowWinnerModal(false)} winningNumber={winner} />
+      <WinnerModal
+        isOpen={showWinnerModal}
+        onClose={() => setShowWinnerModal(false)}
+        winningNumber={winner}
+      />
     </div>
-  )
+  );
 }
