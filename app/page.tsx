@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Menu, X, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Menu, X, AlertCircle, CheckCircle2, Search } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,6 +50,7 @@ export default function HomePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isOperationLoading, setIsOperationLoading] = useState(false);
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [resultDialog, setResultDialog] = useState<DialogState>({
     isOpen: false,
     title: "",
@@ -73,14 +75,13 @@ export default function HomePage() {
 
   // Sort attendees by created_at (latest first)
   const sortedAttendees = [...attendees].sort((a, b) => {
-    // Handle both Firestore Timestamp and ISO string formats
     const getTimestamp = (attendee: Attendee): number => {
       if (attendee.created_at) {
         if (
           typeof attendee.created_at === "object" &&
           "seconds" in attendee.created_at
         ) {
-          return attendee.created_at.seconds * 1000; // Convert Firestore timestamp
+          return attendee.created_at.seconds * 1000;
         }
         if (typeof attendee.created_at === "string") {
           return new Date(attendee.created_at).getTime();
@@ -91,14 +92,30 @@ export default function HomePage() {
 
     const timeA = getTimestamp(a);
     const timeB = getTimestamp(b);
-    return timeB - timeA; // Newest first
+    return timeB - timeA;
   });
 
-  // Pagination
-  const totalPages = Math.ceil(sortedAttendees.length / ITEMS_PER_PAGE);
+  // Filter based on search query (searches ALL attendees)
+  const filteredAttendees = sortedAttendees.filter((attendee) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      attendee.firstname.toLowerCase().includes(query) ||
+      attendee.lastname.toLowerCase().includes(query) ||
+      attendee.email.toLowerCase().includes(query) ||
+      attendee.phone.includes(query)
+    );
+  });
+
+  // Pagination on filtered results
+  const totalPages = Math.ceil(filteredAttendees.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedAttendees = sortedAttendees.slice(startIndex, endIndex);
+  const paginatedAttendees = filteredAttendees.slice(startIndex, endIndex);
+
+  // Reset to page 1 when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const showResultDialog = (
     title: string,
@@ -194,8 +211,9 @@ export default function HomePage() {
     setIsOperationLoading(true);
     try {
       const result = await addAttendee(attendee);
-      setNewlyAddedId(result?.id || null); // Highlight the newly added attendee
-      setCurrentPage(1); // Go to first page to see newly added attendee
+      setNewlyAddedId(result?.id || null);
+      setCurrentPage(1);
+      setSearchQuery(""); // Clear search to show newly added
       showResultDialog(
         "Success",
         `${attendee.firstname} ${attendee.lastname} added successfully`,
@@ -281,7 +299,7 @@ export default function HomePage() {
     );
   }
 
-  function cn(...classes: (string | boolean)[]): string {
+  function cn(...classes: (string | boolean | undefined)[]): string {
     return classes.filter(Boolean).join(" ");
   }
 
@@ -330,7 +348,7 @@ export default function HomePage() {
             <div className="flex items-center gap-3">
               <div className="relative w-10 h-10">
                 <Image
-                  src="/veclogo.PNG"
+                  src="/veclogo.png"
                   alt="VECAttend Logo"
                   fill
                   className="object-contain"
@@ -453,51 +471,81 @@ export default function HomePage() {
 
         {/* Attendee List */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="text-xl font-bold text-foreground">Audience</h2>
               <p className="text-xs text-muted-foreground mt-1">
-                {sortedAttendees.length} total • Showing{" "}
-                {Math.min(ITEMS_PER_PAGE, sortedAttendees.length)} per page
+                {filteredAttendees.length} results{searchQuery && " found"} •
+                Total: {sortedAttendees.length}
               </p>
             </div>
           </div>
-          <AttendeeList
-            attendees={paginatedAttendees}
-            activeEvent={activeEvent}
-            onToggleAttendance={handleToggleAttendance}
-            onDeleteAttendee={handleDeleteAttendee}
-            onEditAttendee={handleEditAttendee}
-            newlyAddedId={newlyAddedId}
-          />
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between pt-4 border-t border-border">
-              <div className="text-sm text-muted-foreground">
-                Page {currentPage} of {totalPages}
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                </Button>
-              </div>
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by name, email, or phone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {filteredAttendees.length === 0 && searchQuery ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">
+                No results found for "{searchQuery}"
+              </p>
             </div>
+          ) : (
+            <>
+              <AttendeeList
+                attendees={paginatedAttendees}
+                activeEvent={activeEvent}
+                onToggleAttendance={handleToggleAttendance}
+                onDeleteAttendee={handleDeleteAttendee}
+                onEditAttendee={handleEditAttendee}
+                newlyAddedId={newlyAddedId}
+              />
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-4 border-t border-border">
+                  <div className="text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>

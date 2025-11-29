@@ -15,6 +15,7 @@ import {
 import { AttendeeCard } from "@/components/member-card";
 import type { Attendee, AttendeeCategory, Event } from "@/lib/types";
 import { CATEGORIES } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 interface AttendeeListProps {
   attendees: Attendee[];
@@ -22,6 +23,7 @@ interface AttendeeListProps {
   onToggleAttendance: (attendeeId: string) => void;
   onDeleteAttendee: (id: string) => void;
   onEditAttendee: (attendee: Attendee) => void;
+  newlyAddedId?: string | null;
 }
 
 type FilterMode = "all" | "attending" | "not-attending";
@@ -32,6 +34,7 @@ export function AttendeeList({
   onToggleAttendance,
   onDeleteAttendee,
   onEditAttendee,
+  newlyAddedId,
 }: AttendeeListProps) {
   const [search, setSearch] = useState("");
   const [categoryFilters, setCategoryFilters] = useState<AttendeeCategory[]>(
@@ -82,7 +85,7 @@ export function AttendeeList({
     <div className="space-y-4">
       {/* Search and filters */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
+        {/* <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search audience..."
@@ -90,7 +93,7 @@ export function AttendeeList({
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 h-11 bg-card border-border"
           />
-        </div>
+        </div> */}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -158,21 +161,29 @@ export function AttendeeList({
       {filteredAttendees.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filteredAttendees.map((attendee) => (
-            <AttendeeCard
+            <div
               key={attendee.id}
-              attendee={attendee}
-              isAttending={
-                activeEvent
-                  ? attendee.events_attended.includes(activeEvent.id)
-                  : false
-              }
-              hasActiveEvent={!!activeEvent}
-              onToggleAttendance={() =>
-                (activeEvent && onToggleAttendance(attendee.id)) || undefined
-              }
-              onDelete={() => onDeleteAttendee(attendee.id)}
-              onEdit={() => onEditAttendee(attendee)}
-            />
+              className={cn(
+                newlyAddedId === attendee.id
+                  ? "animate-pulse ring-2 ring-orange-500 rounded-lg"
+                  : ""
+              )}
+            >
+              <AttendeeCard
+                attendee={attendee}
+                isAttending={
+                  activeEvent
+                    ? attendee.events_attended.includes(activeEvent.id)
+                    : false
+                }
+                hasActiveEvent={!!activeEvent}
+                onToggleAttendance={() =>
+                  (activeEvent && onToggleAttendance(attendee.id)) || undefined
+                }
+                onDelete={() => onDeleteAttendee(attendee.id)}
+                onEdit={() => onEditAttendee(attendee)}
+              />
+            </div>
           ))}
         </div>
       ) : (

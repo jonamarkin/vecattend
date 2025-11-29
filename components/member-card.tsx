@@ -90,22 +90,21 @@ export function AttendeeCard({
   return (
     <Card
       className={cn(
-        "transition-all duration-200 border-2 overflow-hidden",
+        "transition-all duration-200 border-2 overflow-hidden h-full flex flex-col",
         isAttending &&
           "ring-2 ring-emerald-500/50 bg-emerald-50 dark:bg-emerald-950/20",
         isLoading && "opacity-70"
       )}
     >
-      <CardContent className="p-3 sm:p-4">
-        <div className="flex items-start gap-2 sm:gap-3 min-w-0">
+      <CardContent className="p-3 sm:p-4 flex flex-col h-full">
+        <div className="flex items-start gap-2 sm:gap-3 min-w-0 flex-1">
           {/* Star icon for special guests */}
           {isSpecialGuest && (
-            <div className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 shrink-0">
+            <div className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 shrink-0 mt-0.5">
               <Star
                 className={cn(
                   "w-4 h-4 sm:w-5 sm:h-5 fill-current",
-                  attendee.category === "special" ||
-                    attendee.category === "patron"
+                  attendee.category === "special"
                     ? "text-orange-600"
                     : "text-red-600"
                 )}
@@ -118,14 +117,14 @@ export function AttendeeCard({
             onClick={handleToggleAttendance}
             disabled={!hasActiveEvent || isLoading}
             className={cn(
-              "relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full font-semibold text-sm sm:text-base transition-all shrink-0",
+              "relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full font-semibold text-sm sm:text-base transition-all shrink-0 flex-shrink-0",
               isAttending
                 ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/50"
                 : "bg-muted text-muted-foreground",
               hasActiveEvent &&
                 !isLoading &&
                 "cursor-pointer hover:scale-110 active:scale-95",
-              !hasActiveEvent || (isLoading && "cursor-default opacity-60")
+              (!hasActiveEvent || isLoading) && "cursor-default opacity-60"
             )}
             title={
               hasActiveEvent
@@ -169,7 +168,7 @@ export function AttendeeCard({
               {attendee.lastname}
             </p>
 
-            <div className="space-y-0.5 mt-1">
+            <div className="space-y-0.5 mt-1 min-h-[2.5rem]">
               {attendee.email && (
                 <a
                   href={`mailto:${attendee.email}`}
@@ -198,7 +197,7 @@ export function AttendeeCard({
               onClick={handleToggleAttendance}
               disabled={isLoading}
               size="sm"
-              className="shrink-0 gap-1 bg-emerald-600 hover:bg-emerald-700 text-xs sm:text-sm disabled:opacity-70"
+              className="shrink-0 gap-1 bg-emerald-600 hover:bg-emerald-700 text-xs sm:text-sm disabled:opacity-70 h-10"
               title="Check in"
             >
               {isLoading ? (
@@ -241,8 +240,8 @@ export function AttendeeCard({
           </DropdownMenu>
         </div>
 
-        {/* Attendance count badge */}
-        <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-border">
+        {/* Attendance count badge - Fixed height at bottom */}
+        <div className="mt-3 pt-3 border-t border-border">
           <p className="text-xs text-muted-foreground">
             Attended{" "}
             <span className="font-medium text-foreground">
