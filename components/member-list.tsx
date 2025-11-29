@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState, useMemo } from "react"
-import { Search, Filter, Users } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { useState, useMemo } from "react";
+import { Search, Filter, Users } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,20 +11,20 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
   DropdownMenuLabel,
-} from "@/components/ui/dropdown-menu"
-import { AttendeeCard } from "@/components/member-card"
-import type { Attendee, AttendeeCategory, Event } from "@/lib/types"
-import { CATEGORIES } from "@/lib/types"
+} from "@/components/ui/dropdown-menu";
+import { AttendeeCard } from "@/components/member-card";
+import type { Attendee, AttendeeCategory, Event } from "@/lib/types";
+import { CATEGORIES } from "@/lib/types";
 
 interface AttendeeListProps {
-  attendees: Attendee[]
-  activeEvent: Event | null
-  onToggleAttendance: (attendeeId: string) => void
-  onDeleteAttendee: (id: string) => void
-  onEditAttendee: (attendee: Attendee) => void
+  attendees: Attendee[];
+  activeEvent: Event | null;
+  onToggleAttendance: (attendeeId: string) => void;
+  onDeleteAttendee: (id: string) => void;
+  onEditAttendee: (attendee: Attendee) => void;
 }
 
-type FilterMode = "all" | "attending" | "not-attending"
+type FilterMode = "all" | "attending" | "not-attending";
 
 export function AttendeeList({
   attendees,
@@ -33,40 +33,50 @@ export function AttendeeList({
   onDeleteAttendee,
   onEditAttendee,
 }: AttendeeListProps) {
-  const [search, setSearch] = useState("")
-  const [categoryFilters, setCategoryFilters] = useState<AttendeeCategory[]>([])
-  const [attendanceFilter, setAttendanceFilter] = useState<FilterMode>("all")
+  const [search, setSearch] = useState("");
+  const [categoryFilters, setCategoryFilters] = useState<AttendeeCategory[]>(
+    []
+  );
+  const [attendanceFilter, setAttendanceFilter] = useState<FilterMode>("all");
 
   const filteredAttendees = useMemo(() => {
     return attendees.filter((attendee) => {
       // Search filter
-      const searchLower = search.toLowerCase()
+      const searchLower = search.toLowerCase();
       const matchesSearch =
         search === "" ||
-        attendee.firstName.toLowerCase().includes(searchLower) ||
-        attendee.lastName.toLowerCase().includes(searchLower) ||
+        attendee.firstname.toLowerCase().includes(searchLower) ||
+        attendee.lastname.toLowerCase().includes(searchLower) ||
         attendee.email.toLowerCase().includes(searchLower) ||
-        attendee.phone.includes(search)
+        attendee.phone.includes(search);
 
       // Category filter
-      const matchesCategory = categoryFilters.length === 0 || categoryFilters.includes(attendee.category)
+      const matchesCategory =
+        categoryFilters.length === 0 ||
+        categoryFilters.includes(attendee.category);
 
       // Attendance filter
-      let matchesAttendance = true
+      let matchesAttendance = true;
       if (activeEvent && attendanceFilter !== "all") {
-        const isAttending = attendee.eventsAttended.includes(activeEvent.id)
-        matchesAttendance = attendanceFilter === "attending" ? isAttending : !isAttending
+        const isAttending = attendee.events_attended.includes(activeEvent.id);
+        matchesAttendance =
+          attendanceFilter === "attending" ? isAttending : !isAttending;
       }
 
-      return matchesSearch && matchesCategory && matchesAttendance
-    })
-  }, [attendees, search, categoryFilters, attendanceFilter, activeEvent])
+      return matchesSearch && matchesCategory && matchesAttendance;
+    });
+  }, [attendees, search, categoryFilters, attendanceFilter, activeEvent]);
 
   const toggleCategory = (category: AttendeeCategory) => {
-    setCategoryFilters((prev) => (prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]))
-  }
+    setCategoryFilters((prev) =>
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category]
+    );
+  };
 
-  const activeFilterCount = categoryFilters.length + (attendanceFilter !== "all" ? 1 : 0)
+  const activeFilterCount =
+    categoryFilters.length + (attendanceFilter !== "all" ? 1 : 0);
 
   return (
     <div className="space-y-4">
@@ -84,7 +94,10 @@ export function AttendeeList({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-11 gap-2 shrink-0 bg-transparent">
+            <Button
+              variant="outline"
+              className="h-11 gap-2 shrink-0 bg-transparent"
+            >
               <Filter className="w-4 h-4" />
               Filters
               {activeFilterCount > 0 && (
@@ -148,9 +161,15 @@ export function AttendeeList({
             <AttendeeCard
               key={attendee.id}
               attendee={attendee}
-              isAttending={activeEvent ? attendee.eventsAttended.includes(activeEvent.id) : false}
+              isAttending={
+                activeEvent
+                  ? attendee.events_attended.includes(activeEvent.id)
+                  : false
+              }
               hasActiveEvent={!!activeEvent}
-              onToggleAttendance={() => activeEvent && onToggleAttendance(attendee.id)}
+              onToggleAttendance={() =>
+                (activeEvent && onToggleAttendance(attendee.id)) || undefined
+              }
               onDelete={() => onDeleteAttendee(attendee.id)}
               onEdit={() => onEditAttendee(attendee)}
             />
@@ -161,7 +180,9 @@ export function AttendeeList({
           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
             <Users className="w-8 h-8 text-muted-foreground" />
           </div>
-          <h3 className="font-semibold text-foreground mb-1">No audience found</h3>
+          <h3 className="font-semibold text-foreground mb-1">
+            No audience found
+          </h3>
           <p className="text-sm text-muted-foreground max-w-sm">
             {search || categoryFilters.length > 0
               ? "Try adjusting your search or filters"
@@ -170,5 +191,5 @@ export function AttendeeList({
         </div>
       )}
     </div>
-  )
+  );
 }
