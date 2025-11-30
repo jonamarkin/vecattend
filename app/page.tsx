@@ -76,15 +76,15 @@ export default function HomePage() {
   // Sort attendees by created_at (latest first)
   const sortedAttendees = [...attendees].sort((a, b) => {
     const getTimestamp = (attendee: Attendee): number => {
-      if (attendee.created_at) {
+      if (attendee.registered_on) {
         if (
-          typeof attendee.created_at === "object" &&
-          "seconds" in attendee.created_at
+          typeof attendee.registered_on === "object" &&
+          "seconds" in attendee.registered_on
         ) {
-          return attendee.created_at.seconds * 1000;
+          return attendee.registered_on.seconds * 1000;
         }
-        if (typeof attendee.created_at === "string") {
-          return new Date(attendee.created_at).getTime();
+        if (typeof attendee.registered_on === "string") {
+          return new Date(attendee.registered_on).getTime();
         }
       }
       return 0;
@@ -137,6 +137,49 @@ export default function HomePage() {
       description: "",
       type: "success",
     });
+  };
+
+  const formatPhoneNumber = (phone: string) => {
+    // Remove all non-digit characters to get only numbers
+    let cleaned = phone.replace(/\D/g, "");
+
+    // If it starts with '0' (local format), replace the leading '0' with '233'
+    if (cleaned.startsWith("0")) {
+      cleaned = `233${cleaned.substring(1)}`;
+    }
+
+    // The number should now be in the '233...' format.
+    // If it was already '+233...', the '+' has been removed.
+    return cleaned;
+  };
+
+  const sendSms = async (
+    attendee: Attendee,
+    action: "register" | "check-in"
+  ) => {
+    const smsPayload = {
+      ...attendee, // Spread the original attendee object
+      phone: formatPhoneNumber(attendee.phone), // Override with the formatted phone number
+      action: action,
+    };
+
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(smsPayload),
+    };
+
+    try {
+      const response = await fetch(
+        "https://vecbackend-production.up.railway.app/sms",
+        requestOptions
+      );
+      const result = await response.text();
+      console.log("SMS API Response:", result);
+    } catch (error) {
+      console.error("Failed to send SMS:", error);
+      // You could optionally show a non-blocking error to the user here
+    }
   };
 
   const handleEditAttendee = (attendee: Attendee) => {
@@ -201,6 +244,11 @@ export default function HomePage() {
           }`,
           "success"
         );
+
+        // Send SMS only on check-in
+        if (attendee && isNowCheckedIn) {
+          sendSms(attendee, "check-in");
+        }
       } catch (error) {
         showResultDialog("Error", "Failed to update attendance", "error");
       }
@@ -211,7 +259,7 @@ export default function HomePage() {
     setIsOperationLoading(true);
     try {
       const result = await addAttendee(attendee);
-      setNewlyAddedId(result?.id || null);
+      // setNewlyAddedId(result?.id || null);
       setCurrentPage(1);
       setSearchQuery(""); // Clear search to show newly added
       showResultDialog(
@@ -219,6 +267,9 @@ export default function HomePage() {
         `${attendee.firstname} ${attendee.lastname} added successfully`,
         "success"
       );
+
+      // Send SMS on new registration
+      sendSms({ ...attendee, id: result.id, events_attended: [] }, "register");
     } catch (error) {
       showResultDialog("Error", "Failed to add attendee", "error");
     } finally {
@@ -235,6 +286,11 @@ export default function HomePage() {
       await updateAttendee(id, attendee);
       showResultDialog("Success", "Attendee updated successfully", "success");
       setIsEditDialogOpen(false);
+      const updatedAttendee = attendees.find((a) => a.id === id);
+      if (updatedAttendee) {
+        // Note: This will not send SMS on every update, only if you add logic for it.
+        // For example, if a phone number changes.
+      }
       setEditingAttendee(null);
     } catch (error) {
       showResultDialog("Error", "Failed to update attendee", "error");

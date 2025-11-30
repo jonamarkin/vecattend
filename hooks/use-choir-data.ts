@@ -40,6 +40,7 @@ export function useChoirData() {
       const id = await firebaseService.addAttendee(attendee);
       const newAttendee = { ...attendee, id } as Attendee;
       setAttendees([...attendees, newAttendee]);
+      return newAttendee;
     } catch (error) {
       console.error("Error adding attendee:", error);
       throw error;
