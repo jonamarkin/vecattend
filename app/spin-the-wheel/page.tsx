@@ -189,7 +189,7 @@ export default function SpinTheWheelPage() {
               </Card>
 
               {/* Remaining numbers */}
-              <Card className="bg-white/5 border-white/10 p-4">
+              {/* <Card className="bg-white/5 border-white/10 p-4">
                 <h3 className="text-white/80 text-sm font-medium mb-3">
                   Remaining ({remainingNumbers.length})
                 </h3>
@@ -212,7 +212,7 @@ export default function SpinTheWheelPage() {
                     </span>
                   )}
                 </div>
-              </Card>
+              </Card> */}
 
               {/* Drawn numbers */}
               <Card className="bg-white/5 border-white/10 p-4">
