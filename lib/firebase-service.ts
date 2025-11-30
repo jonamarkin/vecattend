@@ -12,7 +12,7 @@ import {
 import { db } from "./firebase";
 import type { Attendee, Event } from "./types";
 
-const ATTENDEES_COLLECTION = "uat_audiences";
+const ATTENDEES_COLLECTION = "audiences";
 const EVENTS_COLLECTION = "events";
 
 export const firebaseService = {
