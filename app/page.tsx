@@ -404,7 +404,7 @@ export default function HomePage() {
             <div className="flex items-center gap-3">
               <div className="relative w-10 h-10">
                 <Image
-                  src="/veclogo.png"
+                  src="/veclogo.svg"
                   alt="VECAttend Logo"
                   fill
                   className="object-contain"
