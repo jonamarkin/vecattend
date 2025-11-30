@@ -99,10 +99,10 @@ export default function HomePage() {
   const filteredAttendees = sortedAttendees.filter((attendee) => {
     const query = searchQuery.toLowerCase();
     return (
-      attendee.firstname.toLowerCase().includes(query) ||
-      attendee.lastname.toLowerCase().includes(query) ||
-      attendee.email.toLowerCase().includes(query) ||
-      attendee.phone.includes(query)
+      (attendee.firstname || "").toLowerCase().includes(query) ||
+      (attendee.lastname || "").toLowerCase().includes(query) ||
+      (attendee.email || "").toLowerCase().includes(query) ||
+      (attendee.phone || "").includes(query)
     );
   });
 

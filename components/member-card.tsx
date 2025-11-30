@@ -52,6 +52,10 @@ const categoryConfig: Record<
     badgeColor: "bg-red-600 text-white border-red-600 font-bold",
     label: "Patron",
   },
+  default: {
+    badgeColor: "bg-gray-500/10 text-gray-600 border-gray-500/20",
+    label: "Member",
+  },
 };
 
 export function AttendeeCard({
@@ -63,9 +67,10 @@ export function AttendeeCard({
   onEdit,
 }: AttendeeCardProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const initials =
-    `${attendee.firstname[0]}${attendee.lastname[0]}`.toUpperCase();
-  const config = categoryConfig[attendee.category];
+  const initials = `${(attendee.firstname || " ")[0]}${
+    (attendee.lastname || " ")[0]
+  }`.toUpperCase();
+  const config = categoryConfig[attendee.category] || categoryConfig.default;
   const isSpecialGuest =
     attendee.category === "special" || attendee.category === "patron";
 
